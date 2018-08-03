@@ -17,15 +17,45 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.genya.mystore.MainActivity" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".controllers.ListProducts" />
-        <activity android:name=".controllers.AboutProduct" />
-        <activity android:name=".controllers.DoOrder"></activity>
+        <activity android:name=".controllers.ListProducts">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.genya.mystore.controllers.ListProducts" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".controllers.AboutProduct" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.genya.mystore.controllers.AboutProduct" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".controllers.DoOrder">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.genya.mystore.controllers.DoOrder" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

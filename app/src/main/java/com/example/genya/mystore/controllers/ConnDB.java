@@ -4,19 +4,21 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
 public class ConnDB {
 
     Integer num;
     String server_name = "http://10.0.2.2/scripts";
-    String id;
+    String id, name, surname, phone, address;
     private HttpURLConnection conn;
 
     public JSONArray downloadDatas(Integer _num)
@@ -43,6 +45,26 @@ public class ConnDB {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Boolean sendOrder(Integer _num, String _id, String _name, String _surname, String _phone, String _address){
+        id = _id;
+        name = _name;
+        surname = _surname;
+        phone = _phone;
+        address = _address;
+
+        SendOrder sendOrder = new SendOrder();
+        sendOrder.execute();
+        try {
+            if (sendOrder.get() == 1){
+            return true;}else{
+                return false;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
 
@@ -75,8 +97,19 @@ public class ConnDB {
                             + "/store.php?action=getproduct&product=" + id;
                 }
 
+                if (num == 3)
+                {
+                    //for class MainActivity
+                    input = server_name
+                            + "/store.php?action=setorder&id=" + id
+                    +"&name=" + name
+                    +"&surname=" + surname
+                    +"&phone=" + phone
+                    +"&address=" + address;
+                }
 
-                Log.i("chat",
+
+                Log.i("ConnDB",
                         "+ ChatActivity - send request on the server "
                                 + input);
                 URL url = new URL(input);
@@ -88,11 +121,11 @@ public class ConnDB {
                 conn.setDoInput(true);
                 conn.connect();
                 Integer res = conn.getResponseCode();
-                Log.i("chat", "+ MainActivity - answer from server (200 = ОК): "
+                Log.i("ConnDB", "+ MainActivity - answer from server (200 = ОК): "
                         + res.toString());
 
             } catch (Exception e) {
-                Log.i("chat",
+                Log.i("ConnDB",
                         "+ MainActivity - answer from server ERROR: "
                                 + e.getMessage());
             }
@@ -105,18 +138,18 @@ public class ConnDB {
                 while ((bfr_st = br.readLine()) != null) {
                     sb.append(bfr_st);
                 }
-                Log.i("chat", "+ FoneService - Full answer from server:\n"
+                Log.i("ConnDB", "+ FoneService - Full answer from server:\n"
                         + sb.toString());
                 ansver = sb.toString();
                 ansver = ansver.substring(ansver.indexOf("["), ansver.indexOf("]") + 1);
 
-                Log.i("chat", "+ FoneService answer: " + ansver);
+                Log.i("ConnDB", "+ FoneService answer: " + ansver);
 
                 is.close();
                 br.close();
             }
             catch (Exception e) {
-                Log.i("chat", "+ FoneService error: " + e.getMessage());
+                Log.i("ConnDB", "+ FoneService error: " + e.getMessage());
             }
             finally {
                 conn.disconnect();
@@ -131,9 +164,20 @@ public class ConnDB {
                     {
                         ja = new JSONArray(ansver);
                     }
+                    if (num == 3)
+                    {
+                        ansver = ansver.substring(ansver.indexOf("{"), ansver.indexOf("}") + 1);
+                        Log.i("ConnDB",
+                                "+ Connect ---------- reply contains JSON:" + ansver);
+                        JSONObject jo = new JSONObject(ansver);
+
+                        Log.i("ConnDB",
+                                "=================>>> "
+                                        + jo.getString("answer"));
+                    }
                 }
                 catch (Exception e) {
-                    Log.i("chat",
+                    Log.i("ConnDB",
                             "+ ConnDB ---------- server response error:\n"
                                     + e.getMessage());
                 }
@@ -145,6 +189,78 @@ public class ConnDB {
                 return ja;
             }
             return null;
+
+        }
+    }
+
+    private class SendOrder extends AsyncTask<Void, Void, Integer>
+    {
+        Integer res;
+        String ansver;
+        @Override
+        protected Integer doInBackground(Void... voids) {
+            try {
+                String input = "";
+
+                    //for class MainActivity
+                    input = server_name
+                            + "/store.php?action=setorder&id=" + id
+                            +"&name="
+                            + name
+                            +"&surname="
+                            + surname
+                            +"&phone="
+                            + phone
+                            +"&address="
+                            + address;
+
+
+
+                Log.i("ConnDB",
+                        "+ ChatActivity - send request on the server "
+                                + input);
+                URL url = new URL(input);
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setReadTimeout(10000);
+                conn.setConnectTimeout(15000);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("User-Agent", "Mozilla/5.0");
+                conn.setDoInput(true);
+                conn.connect();
+                res = conn.getResponseCode();
+                Log.i("ConnDB", "+ MainActivity - answer from server (200 = ОК): "
+                        + res.toString());
+
+            } catch (Exception e) {
+                Log.i("ConnDB",
+                        "+ MainActivity - answer from server ERROR: "
+                                + e.getMessage());
+            }
+            try {
+                InputStream is = conn.getInputStream();
+                BufferedReader br = new BufferedReader(
+                        new InputStreamReader(is, "UTF-8"));
+                StringBuilder sb = new StringBuilder();
+                String bfr_st = null;
+                while ((bfr_st = br.readLine()) != null) {
+                    sb.append(bfr_st);
+                }
+                Log.i("ConnDB", "+ FoneService - Full answer from server:\n"
+                        + sb.toString());
+                ansver = sb.toString();
+
+                Log.i("ConnDB", "+ FoneService answer: " + ansver);
+
+                is.close();
+                br.close();
+            }
+            catch (Exception e) {
+                Log.i("ConnDB", "+ FoneService error: " + e.getMessage());
+            }
+            finally {
+                conn.disconnect();
+            }
+            return Integer.parseInt(ansver);
 
         }
     }

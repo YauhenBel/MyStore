@@ -83,6 +83,9 @@ public class AboutProduct extends AppCompatActivity {
     }
     public void newActivity(){
         Intent intent = new Intent(this, DoOrder.class);
+        intent.putExtra("id", id);
+        intent.putExtra("name", name);
+        intent.putExtra("cost", cost);
         startActivity(intent);
     }
 
