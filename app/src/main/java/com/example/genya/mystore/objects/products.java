@@ -1,5 +1,7 @@
 package com.example.genya.mystore.objects;
 
+//Объект, хранящий информацию о продукте
+
 public class products {
     public String id, name, description, photo, cost, available,
     id_sectin;

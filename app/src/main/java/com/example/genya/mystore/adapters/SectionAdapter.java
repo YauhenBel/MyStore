@@ -13,6 +13,8 @@ import com.example.genya.mystore.objects.sections;
 
 import java.util.ArrayList;
 
+//Адаптер для заполнения списка категорий
+
 public class SectionAdapter extends BaseAdapter {
     Context ctx;
     LayoutInflater inflater;

@@ -1,6 +1,5 @@
 package com.example.genya.mystore;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,69 +17,77 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Objects;
+
+//Активити, отображающее список категорий продукции
 
 public class MainActivity extends AppCompatActivity {
-
+    //список категорий продукции
     ArrayList<sections> sectionList = new ArrayList<sections>();
-    //String name, id;
+    //адаптер, с помощью которого заполняется listview
     SectionAdapter adapter;
+    //listview, отображающий все существующие категории
     ListView lvSection;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.i("store", "+ worker");
+        //создаем новый объект класса подключения к БД
         ConnDB connDB = new ConnDB();
+        //отправляем запрос в БД на получение списка существующих категорий
         procc_answer(connDB.downloadDatas(0));
-
+        //заполняем адаптер полученными данными
         adapter = new SectionAdapter(this, sectionList);
+        //находим наш listview по id и привязываем к соответсвующему объекту
         lvSection = (ListView) findViewById(R.id.lvSection);
+        //передаем в наш listview адаптер, для того, чтобы он мог вывести информацию на экран
         lvSection.setAdapter(adapter);
-        registerForContextMenu(lvSection);
-
+        //задаем обработчик нажатия на элемен listview
         lvSection.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //получаем объект из нажатого элемента
                Object object = adapter.getItem(position);
+               //извлекаем содержимое объекта в массив string
                String[] s = object.toString().split(" ");
+               //получаем из массива идентификатор категории продукции
+                //с помощью него в новом активити будем выводить список продуктов, которые входят в эту категорию
                String id_sect = s[0];
+               //запускаем метод и передаем в него идентификатор категории
                newActivity(id_sect);
             }
         });
 
     }
-
+    //метод создания нового активити
     public void newActivity(String id){
         Intent intent = new Intent(this, ListProducts.class);
-        System.out.print("idSection1" + id);
         intent.putExtra("idSection", id);
         startActivity(intent);
     }
-
+    //метод для обработки результата запроса
     private void procc_answer(JSONArray ja)
     {
         try {
+            //создаем объект JSON
             JSONObject jo;
 
             Integer i = 0;
-            Log.i("chat", String.valueOf(ja.length()));
+            Log.i("MainActivity", String.valueOf(ja.length()));
 
             while (i < ja.length()) {
-                Log.i("chat", String.valueOf(ja.getJSONObject(i)));
+                Log.i("MainActivity", String.valueOf(ja.getJSONObject(i)));
                 // разберем JSON массив построчно
                 jo = ja.getJSONObject(i);
 
-                Log.i("chat",
+                Log.i("MainActivity",
                         "=================>>> "
                                 + jo.getString("id")
                                 + " " + jo.getString("name"));
 
                 String id = jo.getString("id");
                 String name = jo.getString("name");
-                Log.i("chat", "id = " + id);
-                Log.i("chat", "name = " + name);
+                //добавим в ArrayList новую запись
                 sectionList.add(new sections(id, name));
                 i++;
             }

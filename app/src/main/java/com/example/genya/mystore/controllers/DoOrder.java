@@ -1,22 +1,20 @@
 package com.example.genya.mystore.controllers;
 
-import android.app.ActionBar;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.Toolbar;
-
 import com.example.genya.mystore.R;
 
-public class DoOrder extends AppCompatActivity {
+//Активити оформления заказа
 
+public class DoOrder extends AppCompatActivity {
+    //Краткая информация о продукте и о заказчике
     String id, name, cost;
     TextView tvName, tvCost;
     EditText etName, etSurname, etPhone, etAddres;
@@ -29,7 +27,7 @@ public class DoOrder extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_do_order);
-
+        //получаем информацию о продукте, переданную с предыдущего активити
         Intent intent = getIntent();
         id = intent.getStringExtra("id");
         name = intent.getStringExtra("name");
@@ -44,20 +42,20 @@ public class DoOrder extends AppCompatActivity {
         etAddres = (EditText) findViewById(R.id.etAddress);
 
         sendOrder = (Button) findViewById(R.id.btnSendOrder);
-
+        //обработчик кнопки оформления заказа
         View.OnClickListener oclBtnOk = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ConnDB connDB = new ConnDB();
                 Boolean bool;
-                bool = connDB.sendOrder(3, id, etName.getText().toString(), etSurname.getText().toString(),
+                bool = connDB.sendOrder(id, etName.getText().toString(), etSurname.getText().toString(),
                         etPhone.getText().toString(), etAddres.getText().toString());
                 if (bool){
                     Log.i("DoOrder","Заказ оформлен");
                     Toast.makeText(getApplicationContext(),
                             "Заказ успешно оформлен", Toast.LENGTH_SHORT).show();
                 }else {
-                    Log.i("DoOrder","Ошибка оформления заказа");
+                    Log.i("DoOrder","Ош3, ибка оформления заказа");
                     Toast.makeText(getApplicationContext(),
                             "Ошибка", Toast.LENGTH_SHORT).show();
                 }

@@ -1,5 +1,7 @@
 package com.example.genya.mystore.objects;
 
+//Объект, хранящий информацию о категорииях продуктов
+
 public class sections {
     public String name, id;
 

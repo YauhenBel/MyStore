@@ -4,55 +4,63 @@ import android.os.AsyncTask;
 import android.util.Log;
 
 import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.util.concurrent.ExecutionException;
 
-public class ConnDB {
+//Класс для подключения к БД
 
+public class ConnDB {
+    //переменная, определяющая какой из запросов к БД будет выполнен
     Integer num;
+    //Адрес для подключения к локальной БД
+    //для того, что бы это работало на эмуляторе android - нужен ip =10.0.2.2, аналог 127.0.0.1
     String server_name = "http://10.0.2.2/scripts";
     String id, name, surname, phone, address;
     private HttpURLConnection conn;
 
+    //загружаем список категорий продуктов
     public JSONArray downloadDatas(Integer _num)
-    {
+    {   //здесь num = 0;
         num = _num;
-        Input_profile input_profile = new Input_profile();
-        input_profile.execute();
+        GetDatas getDatas = new GetDatas();
+        getDatas.execute();
         try {
-            return input_profile.get();
+            return getDatas.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
     }
+    //загружаем информацию о продуктах/продукте
     public JSONArray downloadDatas(Integer _num, String _id)
-    {
+    {   // здесь num = 1/2
         num = _num;
         id = _id;
-        Input_profile input_profile = new Input_profile();
-        input_profile.execute();
+        GetDatas getDatas = new GetDatas();
+        getDatas.execute();
         try {
-            return input_profile.get();
+            return getDatas.get();
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
         return null;
     }
-
-    public Boolean sendOrder(Integer _num, String _id, String _name, String _surname, String _phone, String _address){
+    //отправляем заказ на сервер
+    public Boolean sendOrder(String _id, String _name, String _surname, String _phone, String _address){
         id = _id;
         name = _name;
         surname = _surname;
         phone = _phone;
         address = _address;
+        name = name.replace(" ", "%20");
+        surname = surname.replace(" ", "%20");
+        phone = phone.replace(" ", "%20");
+        address = address.replace(" ", "%20");
 
         SendOrder sendOrder = new SendOrder();
         sendOrder.execute();
@@ -68,7 +76,7 @@ public class ConnDB {
     }
 
 
-    private class Input_profile extends AsyncTask<Object, Object, JSONArray>
+    private class GetDatas extends AsyncTask<Object, Object, JSONArray>
     {
         String ansver;
         JSONArray ja;
@@ -79,35 +87,26 @@ public class ConnDB {
                 String input = "";
                 if (num == 0)
                 {
-                    //for class MainActivity
+                    //запрос на получение списка категрий продуктов
+                    //запрос для активити MainActivity
                     input = server_name
                             + "/store.php?action=select";
                 }
                 if (num == 1)
                 {
-                    //for class MainActivity
+                    //запрос на получение списка продуктов определенной категрии
+                    //запрос для активити ListProducts
                     input = server_name
                             + "/store.php?action=getproducts&section=" + id;
                 }
 
                 if (num == 2)
                 {
-                    //for class MainActivity
+                    //запрос на получения информации о продукте
+                    //запрос для активити AboutProduct
                     input = server_name
                             + "/store.php?action=getproduct&product=" + id;
                 }
-
-                if (num == 3)
-                {
-                    //for class MainActivity
-                    input = server_name
-                            + "/store.php?action=setorder&id=" + id
-                    +"&name=" + name
-                    +"&surname=" + surname
-                    +"&phone=" + phone
-                    +"&address=" + address;
-                }
-
 
                 Log.i("ConnDB",
                         "+ ChatActivity - send request on the server "
@@ -164,17 +163,6 @@ public class ConnDB {
                     {
                         ja = new JSONArray(ansver);
                     }
-                    if (num == 3)
-                    {
-                        ansver = ansver.substring(ansver.indexOf("{"), ansver.indexOf("}") + 1);
-                        Log.i("ConnDB",
-                                "+ Connect ---------- reply contains JSON:" + ansver);
-                        JSONObject jo = new JSONObject(ansver);
-
-                        Log.i("ConnDB",
-                                "=================>>> "
-                                        + jo.getString("answer"));
-                    }
                 }
                 catch (Exception e) {
                     Log.i("ConnDB",
@@ -201,8 +189,7 @@ public class ConnDB {
         protected Integer doInBackground(Void... voids) {
             try {
                 String input = "";
-
-                    //for class MainActivity
+                    //запрос для активити DoOrder
                     input = server_name
                             + "/store.php?action=setorder&id=" + id
                             +"&name="

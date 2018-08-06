@@ -11,15 +11,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.genya.mystore.R;
-import com.example.genya.mystore.objects.products;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class AboutProduct extends AppCompatActivity {
+//Активити, отображающее информацию о конкретном продукте
 
+public class AboutProduct extends AppCompatActivity {
+    //информация о продукте: идентификатор в БД, наименование, описание, фото, цена, наличие
     String id, name, description, photo, cost, available;
     TextView tvName, tvDescription, tvAvailable, tvCost;
     ImageView ivPhoto;
@@ -29,16 +30,16 @@ public class AboutProduct extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about_product);
-
+        //возвращаем данные, полученные с предыдущего активити
         Intent intent = getIntent();
         id = intent.getStringExtra("id");
         name = intent.getStringExtra("name");
         photo = intent.getStringExtra("photo");
         cost = intent.getStringExtra("cost");
-
+        //запрос к БД на получение недостающей информации о продукте
         ConnDB connDB = new ConnDB();
         procc_answer(connDB.downloadDatas(2, id));
-
+        //когда получили все данные - выводим их на экран
         tvName = (TextView) findViewById(R.id.tvNameProduct);
         tvDescription = (TextView) findViewById(R.id.tvDescriptionproduct);
         tvAvailable = (TextView) findViewById(R.id.tvisAvailable);
@@ -48,6 +49,7 @@ public class AboutProduct extends AppCompatActivity {
 
         tvName.setText(name);
         tvDescription.setText(description);
+
         Log.i("AboutProduct", "available - " + available);
         if (available.equals("1")){
             tvAvailable.setText("Есть в наличии");
@@ -55,6 +57,8 @@ public class AboutProduct extends AppCompatActivity {
             tvAvailable.setText("Нет в наличии");
         }
         tvCost.setText(cost + "р.");
+
+        //загружаем картинку продукта
         Picasso.get().load("http://10.0.2.2//my%20portable%20files/image/"+photo)
                 .placeholder(R.drawable.ic_cloud_download_black_24dp)
                 .error(R.drawable.ic_cloud_off_black_24dp)
@@ -69,9 +73,11 @@ public class AboutProduct extends AppCompatActivity {
                         e.printStackTrace();
                         ;                    }
                 });
+        //обработчик нажатия
         View.OnClickListener oclBtnOk = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //переходим на окно офомления заказа
                 newActivity();
             }
         };
@@ -81,6 +87,7 @@ public class AboutProduct extends AppCompatActivity {
 
 
     }
+    //создаем активити оформления заказа и передаем туда необходимые данные
     public void newActivity(){
         Intent intent = new Intent(this, DoOrder.class);
         intent.putExtra("id", id);
@@ -88,7 +95,7 @@ public class AboutProduct extends AppCompatActivity {
         intent.putExtra("cost", cost);
         startActivity(intent);
     }
-
+    //обрабатываем ответ БД
     private void procc_answer(JSONArray ja)
     {
         try {
@@ -106,11 +113,8 @@ public class AboutProduct extends AppCompatActivity {
                         "=================>>> "
                                 + jo.getString("description")
                                 + " " + jo.getString("available"));
-
                 description = jo.getString("description");
                 available = jo.getString("available");
-
-
                 i++;
             }
         }

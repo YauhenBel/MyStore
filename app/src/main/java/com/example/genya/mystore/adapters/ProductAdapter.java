@@ -16,6 +16,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+//Адаптер для заполнения списка продуктов
+
 public class ProductAdapter extends BaseAdapter {
 
     Context ctx;
